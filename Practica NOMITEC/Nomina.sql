@@ -171,4 +171,43 @@ from dblink('dbname=contabilidad user=postgres password=postgrespw',
     'Select max(id_cuenta_contable) from cuenta_contable')
     as externa(idcc integer);
 
-SELECT * from empleado
+SELECT * from empleado;
+
+/*Cursor*/
+Drop procedure GeneraPoliza;
+CREATE procedure GeneraPoliza(
+)
+as $$
+Declare vNumeroNomina integer;
+Declare vIdNomina integer;
+Declare vIdPoliza integer;
+Declare vIdCuentacontable integer;
+Begin
+
+    vNumeroNomina := (Select Max(numeronomina) from nomina);
+
+    if vNumeroNomina IS NULL THEN
+        vNumeroNomina:=1;
+    end if;
+
+    Insert into public.nomina (numeronomina, fechainicio, fechafin, aplicada) values
+          (vNumeroNomina,'2023-03-01','2023-03-15',b'0');
+    vIdNomina := (Select max(idnomina) from nomina);
+
+    Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
+        'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
+        values (1,''2023-03-15'',0,0,''0'',''3'')');
+
+    vIdPoliza:=(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
+        'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer));
+
+    Insert into  public.nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos, totalsueldo)
+    values (vIdNomina,1,8000,2000,3000,9000);
+
+   vIdCuentacontable :=(
+        Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
+       'INSERT into public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
+        values ('''||vIdpoliza||''','''||vIdCuentacontable||''',5000,0,''De nomina'')'));
+
+end
+$$
