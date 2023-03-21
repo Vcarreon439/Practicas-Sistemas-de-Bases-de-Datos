@@ -193,6 +193,7 @@ INSERT INTO cuenta_contable (Id_Cuenta_Contable, Numero_Cuenta_Contable, Nombre_
 /*Sentencia para agarrar el max de id_cuenta_contable*/
 SELECT max(id_cuenta_contable) from cuenta_contable;
 
+/*Para insertar valores desde dblink es con*/
 /*'''||(Select xd)||'''*/
 
 select dblink_connect('conexion','dbname=bddnomina user=postgres password=postgrespw');
