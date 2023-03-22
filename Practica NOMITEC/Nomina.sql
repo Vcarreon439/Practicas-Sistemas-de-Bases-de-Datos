@@ -1,6 +1,5 @@
+/*Practica 2.1*/
 Create DATABASE bddnomina;
-
-create extension dblink;
 
 create table puesto(
     idpuesto serial primary key not null,
@@ -143,6 +142,9 @@ INSERT into contrato  ( IdContrato ,  IdEmpleado ,  NumeroContrato ,  FechaAlta 
   (3, 3, N'32489664', CAST(N'2020-10-01' AS Date), CAST(N'2020-10-12' AS Date), 6, 8, 14),
   (4, 4, N'4484693KK', CAST(N'2014-08-12' AS Date), NULL, 6, 8, 11),
   (5, 5, N'4484693KK', CAST(N'2014-08-12' AS Date), NULL, 7, 8, 12);
+
+/*Practica 2.2*/
+create extension dblink;
 
 insert into nomina (numeronomina, fechainicio, fechafin, aplicada) values (1,CAST(N'2022-08-01' as date),CAST(N'2022-08-15' as date),'0');
 

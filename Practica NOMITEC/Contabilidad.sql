@@ -1,6 +1,5 @@
+/*Practica 2.1*/
 create database Contabilidad;
-
-create extension dblink;
 
 create table cuenta_contable(
     id_cuenta_contable serial primary key,
@@ -153,10 +152,13 @@ INSERT INTO cuenta_contable (Id_Cuenta_Contable, Numero_Cuenta_Contable, Nombre_
 ( '108',  '5104.01.04',  'NOLC243698HCDLZR42',  'D',  ' ',  '0.00',  '0.00',  '78',  '1',  '5'),
 ( '109',  '5104.01.05',  'LOPL080144MCDLZR42',  'D',  ' ',  '0.00',  '0.00',  '78',  '1',  '5');
 
+/*Practica 2.2*/
+create extension dblink;
+
 SELECT * from tb_con_poliza_detalle;
 
 /*Select a la base de Datos bddnomina*/
-Select externa.idEmpleado, externa.idCuenta, externa.Curp, concat_ws(' ',externa.Nombre, externa. Apellido)
+Select externa.idEmpleado, externa.idCuenta, externa.Curp, concat_ws(' ',externa.Nombre, externa.Apellido) as Nombre
 from dblink('dbname=bddnomina user=postgres password=postgrespw',
     'Select idempleado, id_cuenta_contable, curp, nombre, apellidos from empleado')
     as externa(idEmpleado integer, idCuenta integer, Curp char(18), Nombre varchar(100), Apellido varchar(100))
