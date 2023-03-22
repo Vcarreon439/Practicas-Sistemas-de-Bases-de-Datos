@@ -204,3 +204,4 @@ select dblink_exec(
 select dblink_disconnect('conexion');
 
 
+SELECT * from tb_con_poliza_detalle

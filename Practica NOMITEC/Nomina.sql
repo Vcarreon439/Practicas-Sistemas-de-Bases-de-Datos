@@ -176,8 +176,16 @@ SELECT * from empleado;
 /*Cursor*/
 Drop procedure GeneraPoliza;
 CREATE procedure GeneraPoliza(
+    pFechaInicio date,
+    pFechaFin date
 )
+    language plpgsql
 as $$
+    DECLARE cursor cursor for select n.*  from nomina_detalle nd
+inner join nomina n on n.idnomina=nd.idnomina;
+
+
+
 Declare vNumeroNomina integer;
 Declare vIdNomina integer;
 Declare vIdPoliza integer;
@@ -204,10 +212,18 @@ Begin
     Insert into  public.nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos, totalsueldo)
     values (vIdNomina,1,8000,2000,3000,9000);
 
-   vIdCuentacontable :=(
+   vIdCuentacontable := 106;
+
         Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
        'INSERT into public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
-        values ('''||vIdpoliza||''','''||vIdCuentacontable||''',5000,0,''De nomina'')'));
+        values ('''||vIdpoliza||''','''||vIdCuentacontable||''',5000,0,''De nomina'')');
 
 end
+$$;
+
+do
 $$
+    begin
+        call public.generapoliza();
+    end
+$$;
