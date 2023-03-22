@@ -146,17 +146,6 @@ INSERT into contrato  ( IdContrato ,  IdEmpleado ,  NumeroContrato ,  FechaAlta 
 /*Practica 2.2*/
 create extension dblink;
 
-insert into nomina (numeronomina, fechainicio, fechafin, aplicada) values (1,CAST(N'2022-08-01' as date),CAST(N'2022-08-15' as date),'0');
-
-/*Insert en Nomina Detalle*/
-
-Insert into nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos,totalsueldo)
-Values (1,1,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1),500,200,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1)-500+200),
-(1,2,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2),400,100,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2)-400+100),
-(1,3,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3),600,600,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3)-600+600),
-(1,4,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4),200,200,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4)-200+200),
-(1,5,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5),600,700,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5)-600+700);
-
 /*Insert a la tabla tb_con_poliza de la base de datos contabilidad*/
 Select dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
     'INSERT INTO public."tb_con_poliza" (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
@@ -166,6 +155,45 @@ VALUES (1,''2023-12-12'',0,0,''0'',''B'')');
 select dblink_connect('conexion','dbname=contabilidad user=postgres password=postgrespw');
 select dblink_exec('conexion','INSERT INTO tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia) values (1,105,5000,0,''De nomina'')');
 select dblink_disconnect('conexion');
+
+/*Practica 2.3*/
+
+
+--Inserta un registro en la tabla Nomina
+insert into nomina (numeronomina, fechainicio, fechafin, aplicada) values (1,CAST(N'2022-08-01' as date),CAST(N'2022-08-15' as date),'0');
+--Recupera el id de Nomina que acabas de insertar
+select  max(idnomina) from nomina;
+
+/*Insert en Nomina Detalle*/
+Insert into nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos,totalsueldo)
+Values (1,1,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1)-2500+1900),
+(1,2,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2)-2500+1900),
+(1,3,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3)-2500+1900),
+(1,4,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4)-2500+1900),
+(1,5,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5)-2500+1900);
+ select  * from empleado
+--Inserta un registro en la tabla póliza que está en la base de datos de Contabilidad (usa Dblink).
+Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
+    'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
+    values (1,''2023-03-15'',0,0,''0'',''B'')');
+
+--Recupera el id de Poliza que acabas de insertar, utiliza Dblink.
+Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
+    'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer);
+
+--Insertar en Poliza_Detalle dos registros (Utiliza DbLink)
+
+select dblink_connect('conexion','dbname=contabilidad user=postgres password=postgrespw');
+select dblink_exec('conexion','INSERT INTO public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
+    values ( '''||(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
+    'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer))||''',''105'','''||(SELECT c2.sueldo from empleado inner join contrato c on empleado.idempleado = c.idempleado
+inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1)||''',''0'',''De nomina'')');
+select dblink_disconnect('conexion');
+
+
+
+SELECT c2.sueldo from empleado inner join contrato c on empleado.idempleado = c.idempleado
+inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1;
 
 /*Sentencia de max id_cc*/
 Select externa.idcc
@@ -204,9 +232,7 @@ Begin
           (vNumeroNomina,'2023-03-01','2023-03-15',b'0');
     vIdNomina := (Select max(idnomina) from nomina);
 
-    Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
-        'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
-        values (1,''2023-03-15'',0,0,''0'',''3'')');
+
 
     vIdPoliza:=(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
         'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer));

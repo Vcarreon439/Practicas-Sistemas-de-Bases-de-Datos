@@ -164,6 +164,9 @@ from dblink('dbname=bddnomina user=postgres password=postgrespw',
     as externa(idEmpleado integer, idCuenta integer, Curp char(18), Nombre varchar(100), Apellido varchar(100))
 ORDER BY externa.Nombre;
 
+/*Practica 2.3*/
+
+
 /*Select del esquema de bddnomina*/
 Select concat_ws(' ', tempEmp.Nombre, tempEmp.Apellidos) as Nombre, cast(tempEmp.Sueldo as money) as Sueldo,
 
@@ -195,6 +198,8 @@ INSERT INTO cuenta_contable (Id_Cuenta_Contable, Numero_Cuenta_Contable, Nombre_
 /*Sentencia para agarrar el max de id_cuenta_contable*/
 SELECT max(id_cuenta_contable) from cuenta_contable;
 
+SELECT * from tb_con_poliza_detalle;
+
 /*Para insertar valores desde dblink es con*/
 /*'''||(Select xd)||'''*/
 
@@ -206,4 +211,6 @@ select dblink_exec(
 select dblink_disconnect('conexion');
 
 
-SELECT * from tb_con_poliza_detalle
+SELECT * from tb_con_poliza_detalle;
+
+SELECT * from public.tb_con_poliza inner join tb_con_poliza_detalle tcpd on tb_con_poliza.id_poliza = tcpd.id_poliza
