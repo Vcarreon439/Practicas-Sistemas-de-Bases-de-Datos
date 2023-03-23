@@ -213,4 +213,6 @@ select dblink_disconnect('conexion');
 
 SELECT * from tb_con_poliza_detalle;
 
+INSERT INTO tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia) values ()
+
 SELECT * from public.tb_con_poliza inner join tb_con_poliza_detalle tcpd on tb_con_poliza.id_poliza = tcpd.id_poliza

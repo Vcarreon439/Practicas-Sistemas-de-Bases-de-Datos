@@ -171,7 +171,7 @@ Values (1,1,(select sueldo from categoria as ca inner join contrato as co on ca.
 (1,3,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 3)-2500+1900),
 (1,4,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 4)-2500+1900),
 (1,5,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5)-2500+1900);
- select  * from empleado
+
 --Inserta un registro en la tabla póliza que está en la base de datos de Contabilidad (usa Dblink).
 Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
     'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
@@ -255,3 +255,4 @@ $$
         call public.generapoliza();
     end
 $$;
+
