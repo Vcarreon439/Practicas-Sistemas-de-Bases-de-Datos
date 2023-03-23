@@ -158,13 +158,12 @@ select dblink_disconnect('conexion');
 
 /*Practica 2.3*/
 
-
 --Inserta un registro en la tabla Nomina
 insert into nomina (numeronomina, fechainicio, fechafin, aplicada) values (1,CAST(N'2022-08-01' as date),CAST(N'2022-08-15' as date),'0');
 --Recupera el id de Nomina que acabas de insertar
 select  max(idnomina) from nomina;
 
-/*Insert en Nomina Detalle*/
+--Insert en Nomina Detalle
 Insert into nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos,totalsueldo)
 Values (1,1,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 1)-2500+1900),
 (1,2,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 2)-2500+1900),
@@ -173,7 +172,7 @@ Values (1,1,(select sueldo from categoria as ca inner join contrato as co on ca.
 (1,5,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5),2500,1900,(select sueldo from categoria as ca inner join contrato as co on ca.idcategoria = co.idcategoria where idempleado = 5)-2500+1900);
 
 --Inserta un registro en la tabla póliza que está en la base de datos de Contabilidad (usa Dblink).
-Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
+SELECT dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
     'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
     values (1,''2023-03-15'',0,0,''0'',''B'')');
 
@@ -182,15 +181,21 @@ Select temp.id from dblink('dbname=contabilidad user=postgres password=postgresp
     'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer);
 
 --Insertar en Poliza_Detalle dos registros (Utiliza DbLink)
-
 select dblink_connect('conexion','dbname=contabilidad user=postgres password=postgrespw');
 select dblink_exec('conexion','INSERT INTO public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
     values ( '''||(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
     'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer))||''',''105'','''||(SELECT c2.sueldo from empleado inner join contrato c on empleado.idempleado = c.idempleado
-inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1)||''',''0'',''De nomina'')');
+inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1)-2500+1900||''',''0'',''De nomina'')');
 select dblink_disconnect('conexion');
 
+select dblink_connect('conexion','dbname=contabilidad user=postgres password=postgrespw');
+select dblink_exec('conexion','INSERT INTO public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
+    values ( '''||(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
+    'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer))||''',''105'',''0'','''||(SELECT c2.sueldo from empleado inner join contrato c on empleado.idempleado = c.idempleado
+inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1)-2500+1900||''',''De nomina'')');
+select dblink_disconnect('conexion');
 
+/*Practica 2.4*/
 
 SELECT c2.sueldo from empleado inner join contrato c on empleado.idempleado = c.idempleado
 inner join categoria c2 on c.idcategoria = c2.idcategoria where empleado.idempleado = 1;
@@ -200,59 +205,3 @@ Select externa.idcc
 from dblink('dbname=contabilidad user=postgres password=postgrespw',
     'Select max(id_cuenta_contable) from cuenta_contable')
     as externa(idcc integer);
-
-SELECT * from empleado;
-
-/*Cursor*/
-Drop procedure GeneraPoliza;
-CREATE procedure GeneraPoliza(
-    pFechaInicio date,
-    pFechaFin date
-)
-    language plpgsql
-as $$
-    DECLARE cursor cursor for select n.*  from nomina_detalle nd
-inner join nomina n on n.idnomina=nd.idnomina;
-
-
-
-Declare vNumeroNomina integer;
-Declare vIdNomina integer;
-Declare vIdPoliza integer;
-Declare vIdCuentacontable integer;
-Begin
-
-    vNumeroNomina := (Select Max(numeronomina) from nomina);
-
-    if vNumeroNomina IS NULL THEN
-        vNumeroNomina:=1;
-    end if;
-
-    Insert into public.nomina (numeronomina, fechainicio, fechafin, aplicada) values
-          (vNumeroNomina,'2023-03-01','2023-03-15',b'0');
-    vIdNomina := (Select max(idnomina) from nomina);
-
-
-
-    vIdPoliza:=(Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
-        'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer));
-
-    Insert into  public.nomina_detalle(idnomina, idempleado, sueldobase, totaldeducciones, totalcomplementos, totalsueldo)
-    values (vIdNomina,1,8000,2000,3000,9000);
-
-   vIdCuentacontable := 106;
-
-        Perform dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
-       'INSERT into public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
-        values ('''||vIdpoliza||''','''||vIdCuentacontable||''',5000,0,''De nomina'')');
-
-end
-$$;
-
-do
-$$
-    begin
-        call public.generapoliza();
-    end
-$$;
-

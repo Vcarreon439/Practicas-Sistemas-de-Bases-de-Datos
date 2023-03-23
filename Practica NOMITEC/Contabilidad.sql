@@ -165,7 +165,11 @@ from dblink('dbname=bddnomina user=postgres password=postgrespw',
 ORDER BY externa.Nombre;
 
 /*Practica 2.3*/
+Select * from tb_con_poliza_detalle;
+SELECT * from tb_con_poliza;
+SELECT * from cuenta_contable;
 
+/*Practica 2.4*/
 
 /*Select del esquema de bddnomina*/
 Select concat_ws(' ', tempEmp.Nombre, tempEmp.Apellidos) as Nombre, cast(tempEmp.Sueldo as money) as Sueldo,
@@ -209,10 +213,3 @@ select dblink_exec(
     'insert into empleado (idempleado, nsss, rfc, curp, nombre, apellidos, telefono, direccion, nocuenta, iddepartamento, id_cuenta_contable)
         values (''6'', ''46541254'', ''AUVE08020116D'', ''AUVE080201HDGRZDA8'', ''Edgar'', ''Arguijo'', ''8714166171'', ''Fracc. Santa Teresa'', ''28326599'', ''1'', '''||(Select max(id_cuenta_contable) from cuenta_contable)||''')');
 select dblink_disconnect('conexion');
-
-
-SELECT * from tb_con_poliza_detalle;
-
-INSERT INTO tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia) values ()
-
-SELECT * from public.tb_con_poliza inner join tb_con_poliza_detalle tcpd on tb_con_poliza.id_poliza = tcpd.id_poliza
