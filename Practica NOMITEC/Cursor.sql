@@ -1,7 +1,3 @@
-SELECT * from empleado e inner join contrato c on e.idempleado = c.idempleado
-inner join categoria c2 on c2.idcategoria = c.idcategoria where fechabaja is null;
-
-
 DROP procedure  GeneraPoliza(pFechaInicio date, pFechaFin date);
 CREATE procedure GeneraPoliza(
     pFechaInicio date,
@@ -25,6 +21,10 @@ as $$
     Declare fechaAct timestamp := cast(now() as timestamp);
     Declare totSueldo numeric(18,2);
 
+    --Para la conexion
+    Declare conn text := 'host=localhost port=49153 dbname=bddnomina user=postgres password=postgrespw';
+    Declare state text;
+
 Begin
 
     --Proceso de Insertar en Nomina_Detalle
@@ -37,39 +37,46 @@ Begin
                 values (vRNomina, idEmp,sueldoEmp,vDeducciones,vComplementos,((sueldoEmp+vComplementos) - vDeducciones));
 
             --Proceso de Insertar en Poliza
-            Perform dblink_exec('dbname=bddnomina user=postgres password=postgrespw',
+            state:=dblink_exec('dbname=contabilidad user=postgres password=postgrespw',
                 'INSERT INTO public.tb_con_poliza (numero_poliza, fecha_poliza, saldo_deudor, saldo_acreedor, aplicada, tipo_poliza)
-                values ('||cast(vRNomina as varchar(25))||','||fechaAct||','||sueldoEmp||','||sueldoEmp||',B''0'',''B'')');
+                values ('''||cast(vRNomina as varchar(25))||''','''||fechaAct||''','''||sueldoEmp||''','''||sueldoEmp||''',B''0'',''B'')');
 
             --Recupera el id de Poliza que acabas de insertar
             tmpId := (Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
                 'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer));
 
-            totSueldo:= (Select totalsueldo from nomina_detalle where idnomina = vRNomina and idempleado = idEmp);
+            totSueldo:= (Select distinct totalsueldo from nomina_detalle where idnomina = 1 and idempleado = 1);
 
             --Insertar en Poliza_Detalle dos registros
             --Registro Uno
-            perform dblink_exec('dbname=bddnomina user=postgres password=postgrespw','
+            state:=dblink_exec('dbname=contabilidad user=postgres password=postgrespw','
                 insert into public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
-                    values ('||tmpId||','||idCC||','''||totsueldo||''',''0'',''De nomina'')
-            ');
+                    values ('||tmpId||','||idCC||','''||totsueldo||''',''0'',''De nomina'')');
 
             --Registro Dos
-            perform dblink_exec('dbname=bddnomina user=postgres password=postgrespw','
+            state:=dblink_exec('dbname=contabilidad user=postgres password=postgrespw','
                 insert into public.tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)
-                    values ('||tmpId||', '||idCC||', ''0'','''||totsueldo||''', ''De nomina'')
-            ');
-
-            perform dblink_disconnect('conexion');
+                    values ('||tmpId||', '||idCC||', ''0'','''||totsueldo||''', ''De nomina'')');
 
         end loop;
     close insertarNomDetalle;
 end
 $$;
 
+--Ejecucion
 do
 $$
     begin
         call public.generapoliza('2022-08-01','2022-08-15');
     end
 $$;
+
+--Comprobacion
+SELECT * from nomina;
+SELECT * from nomina_detalle;
+
+Select temp.* from dblink('dbname=contabilidad user=postgres password=postgrespw',
+                'SELECT * from public.tb_con_poliza') as temp(id integer, num varchar(25),fecha timestamp,saldod numeric(18,2),salcoa numeric(18,2),aplicada bit, tipo char);
+
+Select temp.* from dblink('dbname=contabilidad user=postgres password=postgrespw',
+                'SELECT * from public.tb_con_poliza_detalle') as temp(id integer, idcc integer, debe numeric(18,2), haber numeric(18,2), referencia varchar(50));
