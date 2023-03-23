@@ -43,9 +43,9 @@ Begin
 
             --Recupera el id de Poliza que acabas de insertar
             tmpId := (Select temp.id from dblink('dbname=contabilidad user=postgres password=postgrespw',
-                'SELECT max(id_poliza) from public.tb_con_poliza') as temp (id integer));
+                'SELECT max(numero_poliza) from public.tb_con_poliza') as temp (id integer));
 
-            totSueldo:= (Select distinct totalsueldo from nomina_detalle where idnomina = 1 and idempleado = 1);
+            totSueldo:= (Select distinct totalsueldo from nomina_detalle where idnomina = tmpId and idempleado = idEmp);
 
             --Insertar en Poliza_Detalle dos registros
             --Registro Uno
