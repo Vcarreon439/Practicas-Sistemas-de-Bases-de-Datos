@@ -22,8 +22,10 @@ as $$
 Begin
     state:=dblink_exec('dbname=bddnomina user=postgres password=postgrespw','
                 insert into public.empleado (nsss,rfc,curp,nombre,apellidos,telefono, direccion, nocuenta, iddepartamento)
-                    values ('||NSSS||','||RFC||','''||totsueldo||''',''0'',''De nomina'')');
-
+                    values ('||NSSS||','||RFC||','||CURP||','||Nombre||','||Apellidos||')');
 
 end
 $$;
+
+
+insert into tb_con_poliza_detalle (id_poliza, id_cuenta_contable, debe, haber, referencia)  values
