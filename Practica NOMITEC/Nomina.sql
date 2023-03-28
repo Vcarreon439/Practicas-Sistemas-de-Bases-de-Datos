@@ -205,3 +205,5 @@ Select externa.idcc
 from dblink('dbname=contabilidad user=postgres password=postgrespw',
     'Select max(id_cuenta_contable) from cuenta_contable')
     as externa(idcc integer);
+
+INSERT INTO contrato (idempleado, numerocontrato, fechaalta, fechabaja, idpuesto, idcategoria, iddepartamento) values ();
