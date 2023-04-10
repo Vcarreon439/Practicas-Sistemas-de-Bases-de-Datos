@@ -1,12 +1,12 @@
-DROP procedure  GeneraPoliza(pFechaInicio date, pFechaFin date);
-CREATE procedure GeneraPoliza(
+DROP procedure  Genera_Nomina(pFechaInicio date, pFechaFin date);
+CREATE procedure Genera_Nomina(
     pFechaInicio date,
     pFechaFin date
 )
     language plpgsql
 as $$
 
-    Declare vRNomina integer := (Select idnomina from nomina where fechainicio = pFechaInicio and fechafin = pFechaFin);
+    Declare vRNomina integer;
     Declare vDeducciones numeric(10,2):=(2500.00);
     Declare vComplementos numeric(10,2):=(1900.00);
 
@@ -74,7 +74,7 @@ $$;
 do
 $$
     begin
-        call public.generapoliza('2022-08-01','2022-08-15');
+        call public.Genera_Nomina('2022-08-01','2022-08-15');
     end
 $$;
 

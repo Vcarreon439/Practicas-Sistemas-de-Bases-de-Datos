@@ -1,4 +1,4 @@
-drop procedure public.crea_empleado(varchar, char, char, varchar, varchar, char, varchar, varchar, varchar, date, date, integer, integer, integer);
+drop procedure Crea_Empleado(varchar, char, char, varchar, varchar, char, varchar, varchar, varchar, date, date, integer, integer, integer);
 CREATE procedure Crea_Empleado(
     --Empleado
     NSSS varchar(25),

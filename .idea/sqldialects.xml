@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/MongoDB/Peliculas.ddl" dialect="MongoDB" />
-    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Contabilidad.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Cursor.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Nomina.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Procedimiento Crea Empleado.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/MongoDB/Peliculas.sql" dialect="MongoDB" />
+    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Ejercicio_Cursor.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Ejercicio_Procedimiento Crea Empleado.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Practicas_Contabilidad.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/Practica NOMITEC/Practicas_Nomina.sql" dialect="PostgreSQL" />
   </component>
 </project>
